@@ -2,8 +2,8 @@
 """
 Mach / AoA sweep driver for SU2.
 
-Usage (from the folder containing rocket_euler.cfg and rocket.su2):
-    python sweep.py --mach 0.3 0.8 1.05 2.0 --aoa 0 4 --np 4
+Usage (from 05_cases/; meshes live in ../04_mesh/):
+    python sweep.py --mesh ../04_mesh/rocket_medium_sw30.su2 --tag medium --mach 0.3 0.8 1.05 2.0 --aoa 0 4 --np 4
     python sweep.py --mach 0.8 --aoa 0 --np 4 --dry-run      # just write configs
     python sweep.py ... --chain                              # restart from previous case
 
@@ -82,6 +82,9 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mach", type=float, nargs="+", required=True)
     ap.add_argument("--aoa", type=float, nargs="+", default=[0.0])
+    ap.add_argument("--mesh", default=MESH, help="mesh file to use (copied in as rocket.su2)")
+    ap.add_argument("--cfg", default=BASE_CFG, help="base config file")
+    ap.add_argument("--tag", default="", help="suffix for run folders / results, e.g. medium")
     ap.add_argument("--np", type=int, default=4, help="MPI processes")
     ap.add_argument("--su2", default="SU2_CFD", help="path/name of SU2_CFD")
     ap.add_argument("--mpi", default="mpirun", help="MPI launcher")
@@ -90,10 +93,13 @@ def main():
     ap.add_argument("--dry-run", action="store_true")
     args = ap.parse_args()
 
-    base = Path(BASE_CFG).read_text()
-    mesh = Path(MESH)
+    global RESULTS
+    if args.tag:
+        RESULTS = Path(f"results_{args.tag}.csv")
+    base = Path(args.cfg).read_text()
+    mesh = Path(args.mesh)
     if not mesh.exists():
-        raise SystemExit(f"{MESH} not found in current folder")
+        raise SystemExit(f"{args.mesh} not found")
 
     finished = done_cases()
     prev_restart = None
@@ -104,7 +110,7 @@ def main():
                 print(f"skip {case_name(mach, aoa)} (already in results.csv)")
                 continue
 
-            d = Path("runs") / case_name(mach, aoa)
+            d = Path("runs") / (case_name(mach, aoa) + (f"_{args.tag}" if args.tag else ""))
             d.mkdir(parents=True, exist_ok=True)
             shutil.copy(mesh, d / MESH)
 
