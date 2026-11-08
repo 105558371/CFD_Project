@@ -1,0 +1,6 @@
+01_notes/git_commands.md
+runs/
+*.vtu
+*.dat
+*.su2
+.venv/
