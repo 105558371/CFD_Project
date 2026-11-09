@@ -15,5 +15,5 @@ Quick start (from the repo root):
 python3 02_handcalc/handcalc.py
 python3 03_geometry/make_mesh.py --level coarse
 cd 05_cases
-python3 sweep.py --mesh ../04_mesh/rocket_coarse_sw30.su2 --tag coarse --mach 0.8 --aoa 0 --np 4 --dry-run
+python3 sweep.py --mesh ../04_mesh/rocket_coarse_sw30.su2 --tag coarse --mach 0.8 --aoa 0 --threads 8 --dry-run
 ```

@@ -13,12 +13,16 @@ One entry per session. Fill it in before you leave the machine.
 - **Running:**
 - **Next:**
 
-## Machine info (fill in on first iMac session)
-- SU2 version:
-- Cores (`sysctl -n hw.ncpu`):
-- RAM (`sysctl -n hw.memsize` / 1073741824):
-- Free disk (`df -h ~`):
-- mpirun / gmsh / ParaView / python3 versions:
+## Machine info
+- **Mac:** Apple Silicon (arm64)
+- **Cores (hw.ncpu):** 10
+- **RAM (hw.memsize):** 25769803776 bytes = 24 GB
+- **Free disk:** 258 GB of 460 GB
+- **SU2**: 8.5.0 "Harrier"
+- **SU2 parallel:** not linked to MPI (otool shows no libmpi); has -t/--threads (OpenMP) option
+- **mpirun:** 5.0.11
+- **Python:** 3.9.6, **Git:** 2.50.1 (Apple Git-155)
+- **ParaView:** 6.2.0 (brew cask); **OpenRocket:** 24.12 (brew cask)
 
 ## Entries
 

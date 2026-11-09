@@ -23,8 +23,8 @@ sysctl -n hw.ncpu hw.memsize
 df -h ~
 python3 -m pip install --user numpy pandas matplotlib gmsh
 ```
-- **Why:** CFD memory grows with the number of cells, and speed grows with the number of cores. These numbers tell you how big a mesh you can afford and what to pass to `mpirun -n`.
-- **Where in code:** `--np` in `sweep.py`; the cell counts from `make_mesh.py` in step 5.
+- **Why:** CFD memory grows with the number of cells, and speed grows with the number of cores. These numbers tell you how big a mesh you can afford and what to pass to `SU2_CFD -t`.
+- **Where in code:** `--threads` in `sweep.py`; the cell counts from `make_mesh.py` in step 5.
 - Write the answers in `logbook.md` (machine info section).
 
 ## 2. Smoke test SU2 on a tutorial (30 min)
@@ -72,10 +72,11 @@ cp ../04_mesh/rocket_coarse_sw30.su2 rocket.su2
 sed -i '' 's/^ITER=.*/ITER= 300/' rocket_euler.cfg      # short sanity run first (macOS sed)
 SU2_CFD rocket_euler.cfg                                   # serial, no MPI, to see the output
 ```
-Check: no "Marker not found" error, residuals dropping, CD stays finite. Then restore `ITER= 3000` and run in parallel:
+Check: no "Marker not found" error, residuals dropping, CD stays finite. Then restore `ITER= 3000` and run on several cores. Your SU2 build is not linked to MPI, so use OpenMP threads instead:
 ```
-mpirun -n 4 SU2_CFD rocket_euler.cfg
+SU2_CFD -t 8 rocket_euler.cfg
 ```
+While it runs, open a second Terminal window and run `top -o cpu`. If `SU2_CFD` shows roughly 600 to 800 % CPU, threading works. If it stays near 100 %, this build is single-core: tell me, and we will look at an MPI-enabled SU2 before the medium and fine meshes.
 Note the time per iteration in the logbook (it sets your run budget).
 - **Why, config block by block:**
   - `MARKER_EULER` is a slip wall: air cannot pass through the rocket but there is no friction, so no boundary layer and no skin-friction drag.
@@ -98,7 +99,7 @@ Open `flow.vtu` in ParaView, slice on y = 0, colour by Mach. For the surface, op
 python3 03_geometry/make_mesh.py --level medium
 python3 03_geometry/make_mesh.py --level fine
 cd 05_cases
-nohup caffeinate -i python3 sweep.py --mesh ../04_mesh/rocket_medium_sw30.su2 --tag medium --mach 0.8 --aoa 0 --np 4 > medium.log 2>&1 &
+nohup caffeinate -i python3 sweep.py --mesh ../04_mesh/rocket_medium_sw30.su2 --tag medium --mach 0.8 --aoa 0 --threads 8 > medium.log 2>&1 &
 ```
 Then the same with `fine`. Fill `06_results/mesh_study.csv` (columns `level,cells,CD`) and run `postprocess.py --mesh-study mesh_study.csv`.
 - **Why:** a converged solver only proves the equations were solved on that mesh, not that the mesh was good enough. If CD stops changing as the mesh is refined, the result is mesh-independent.
@@ -118,7 +119,7 @@ Then the same with `fine`. Fill `06_results/mesh_study.csv` (columns `level,cell
 | Residuals blow up or NaN | lower `CFL_NUMBER` (e.g. 1) and the CFL_ADAPT max (e.g. 20); check the mesh with `--gui` |
 | Residuals stall around -3 to -4 | normal for transonic; judge by CD, CL, CMy flattening, and average the last few hundred iterations |
 | CD oscillates at M = 1.05 | expected near M = 1; report the mean and the amplitude |
-| `mpirun` not found | run serial (`--np 1`) and ask IT for MPI |
+| `mpirun` not found | expected on this Mac: use `-t 8` (OpenMP threads) instead of `mpirun` |
 | Gmsh volume or boolean error | send me the printed error and your `make_mesh.py` options |
 | Python / pip permission error | use `--user` or a virtual environment (`python3 -m venv .venv`) |
 

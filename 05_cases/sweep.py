@@ -3,8 +3,8 @@
 Mach / AoA sweep driver for SU2.
 
 Usage (from 05_cases/; meshes live in ../04_mesh/):
-    python sweep.py --mesh ../04_mesh/rocket_medium_sw30.su2 --tag medium --mach 0.3 0.8 1.05 2.0 --aoa 0 4 --np 4
-    python sweep.py --mach 0.8 --aoa 0 --np 4 --dry-run      # just write configs
+    python sweep.py --mesh ../04_mesh/rocket_medium_sw30.su2 --tag medium --mach 0.3 0.8 1.05 2.0 --aoa 0 4 --threads 8
+    python sweep.py --mach 0.8 --aoa 0 --threads 8 --dry-run      # just write configs
     python sweep.py ... --chain                              # restart from previous case
 
 Each case runs in runs/M<mach>_a<aoa>/ and results go to results.csv.
@@ -85,7 +85,8 @@ def main():
     ap.add_argument("--mesh", default=MESH, help="mesh file to use (copied in as rocket.su2)")
     ap.add_argument("--cfg", default=BASE_CFG, help="base config file")
     ap.add_argument("--tag", default="", help="suffix for run folders / results, e.g. medium")
-    ap.add_argument("--np", type=int, default=4, help="MPI processes")
+    ap.add_argument("--np", type=int, default=1, help="MPI processes (needs an MPI build of SU2)")
+    ap.add_argument("--threads", type=int, default=1, help="OpenMP threads (SU2_CFD -t N)")
     ap.add_argument("--su2", default="SU2_CFD", help="path/name of SU2_CFD")
     ap.add_argument("--mpi", default="mpirun", help="MPI launcher")
     ap.add_argument("--chain", action="store_true",
@@ -125,7 +126,7 @@ def main():
                 print(f"wrote {d}/config.cfg")
                 continue
 
-            cmd = [args.su2, "config.cfg"]
+            cmd = [args.su2] + (["-t", str(args.threads)] if args.threads > 1 else []) + ["config.cfg"]
             if args.np > 1:
                 cmd = [args.mpi, "-n", str(args.np)] + cmd
             print(f"running {case_name(mach, aoa)}: {' '.join(cmd)}")
