@@ -1,18 +1,5 @@
 # Logbook
 
-One entry per session. Fill it in before you leave the machine.
-
-## Template
-
-### YYYY-MM-DD (where: iMac / laptop, hours)
-- **Goal:**
-- **Did:**
-- **Files:** (file names, git commit hash)
-- **Results:** (CD, CL, CMy, residual drop, cells, runtime)
-- **Problems:**
-- **Running:**
-- **Next:**
-
 ## Machine info
 - **Mac:** Apple Silicon (arm64)
 - **Cores (hw.ncpu):** 10
@@ -21,7 +8,8 @@ One entry per session. Fill it in before you leave the machine.
 - **SU2**: 8.5.0 "Harrier"
 - **SU2 parallel:** not linked to MPI (otool shows no libmpi); has -t/--threads (OpenMP) option
 - **mpirun:** 5.0.11
-- **Python:** 3.9.6, **Git:** 2.50.1 (Apple Git-155)
+- **gmsh:** 4.15.2
+- **Python:** 3.9.6, **Git:** 2.39.5 (Apple Git-154)
 - **ParaView:** 6.2.0 (brew cask); **OpenRocket:** 24.12 (brew cask)
 
 ## Entries

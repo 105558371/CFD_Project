@@ -2,7 +2,7 @@
 
 | Folder | Contents |
 |---|---|
-| 01_notes | notes, session plan, email drafts |
+| 01_notes | notes, session plan |
 | 02_handcalc | `handcalc.py`: freestream, shock relations, Barrowman CP |
 | 03_geometry | `make_mesh.py`: Gmsh half-model, fins in X layout |
 | 04_mesh | generated `.su2` meshes (git-ignored) |
